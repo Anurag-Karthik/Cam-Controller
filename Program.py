@@ -23,7 +23,7 @@ def calculateAngle(p1x, p1y, p2x, p2y, p3x, p3y):
         
     return angle 
 
-# pc.FAILSAFE = False
+pc.FAILSAFE = False
 
 #Initializing Camera
 cam = cv2.VideoCapture(0)
@@ -43,6 +43,9 @@ mp_drawing = mp.solutions.drawing_utils
 
 #mouseUp & mouseDown handling variables
 isMouseDown = False
+
+#prevCoordinates is used to Store previous CoOrdinates and caluculate relative position
+prevCoordinates = []
 
 with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_confidence=0.2) as landmarker:
     while True:
@@ -80,9 +83,13 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_
             #8 & 4 are landmarks of Thumb and Index and are used to detect pinch
             if(distanceBetweenPoints(handLandmarks[4]['x'], handLandmarks[4]['y'], handLandmarks[8]['x'], handLandmarks[8]['y']) <= fingerSpace):
                 mouseCordinates = findMidPoint(handLandmarks[4]['x'], handLandmarks[4]['y'], handLandmarks[8]['x'], handLandmarks[8]['y'])
+                if(prevCoordinates == []):
+                    prevCoordinates = mouseCordinates
+                    continue
                 currentMouseX, currentMouseY = pc.position()
-                pc.moveTo((pcScreenWidth - (mouseCordinates[0] * pcScreenWidth)), (mouseCordinates[1] * pcScreenHeight))
-
+                # pc.moveTo((pcScreenWidth - (mouseCordinates[0] * pcScreenWidth)), (mouseCordinates[1] * pcScreenHeight))
+                pc.moveTo((currentMouseX + ((mouseCordinates[0] - prevCoordinates[0]) * pcScreenWidth)), (currentMouseY + ((mouseCordinates[1] - prevCoordinates[1]) * pcScreenHeight)))
+                prevCoordinates = mouseCordinates
                 #angleBetweenWristandLittleFingerTip
                 aBEALFT = calculateAngle(handLandmarks[0]['x'], handLandmarks[0]['y'], handLandmarks[17]['x'], handLandmarks[17]['y'], handLandmarks[20]['x'], handLandmarks[20]['y'])
                 #Preforming a Click if the Angle is less than 60
@@ -96,19 +103,21 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_
                         pc.mouseUp()
                         isMouseDown = False
                         print("Mouse Up", aBEALFT, isMouseDown)
+            else:
+                prevCoordinates = []
                     
 
             #Drawing Landmarks
-            # for hand_landmarks in results.multi_hand_landmarks:
-            #     mp_drawing.draw_landmarks(
-            #         img,
-            #         hand_landmarks,
-            #         mp_hands.HAND_CONNECTIONS)
+            for hand_landmarks in results.multi_hand_landmarks:
+                mp_drawing.draw_landmarks(
+                    img,
+                    hand_landmarks,
+                    mp_hands.HAND_CONNECTIONS)
         else:
             print("No Hands")
                 
         #Displaying the Image
-        # cv2.imshow('CamController', img)
+        cv2.imshow('CamController', img)
 
         #Q set as the key for Quitting the Application
         if cv2.waitKey(1) & 0xFF == ord('Q'):
@@ -117,4 +126,4 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_
 
 #Releaseing accquired Camera before Terminating
 cam.release()
-# cv2.destroyAllWindows()
+cv2.destroyAllWindows()
