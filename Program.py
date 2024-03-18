@@ -80,7 +80,7 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_
                     'y': float(points[2].removeprefix('y: '))
                 })
 
-            #8 & 4 are landmarks of Thumb and Index and are used to detect pinch
+            #8 & 4 are landmarks of Thumb and Index and are used to detect pinch and move mouse
             if(distanceBetweenPoints(handLandmarks[4]['x'], handLandmarks[4]['y'], handLandmarks[8]['x'], handLandmarks[8]['y']) <= fingerSpace):
                 mouseCordinates = findMidPoint(handLandmarks[4]['x'], handLandmarks[4]['y'], handLandmarks[8]['x'], handLandmarks[8]['y'])
                 if(prevCoordinates == []):
@@ -90,22 +90,22 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_
                 # pc.moveTo((pcScreenWidth - (mouseCordinates[0] * pcScreenWidth)), (mouseCordinates[1] * pcScreenHeight))
                 pc.moveTo((currentMouseX + ((mouseCordinates[0] - prevCoordinates[0]) * pcScreenWidth)), (currentMouseY + ((mouseCordinates[1] - prevCoordinates[1]) * pcScreenHeight)))
                 prevCoordinates = mouseCordinates
-                #angleBetweenWristandLittleFingerTip
-                aBEALFT = calculateAngle(handLandmarks[0]['x'], handLandmarks[0]['y'], handLandmarks[17]['x'], handLandmarks[17]['y'], handLandmarks[20]['x'], handLandmarks[20]['y'])
-                #Preforming a Click if the Angle is less than 60
-                if  aBEALFT < 60:
-                    if isMouseDown == False:
-                        pc.mouseDown()
-                        isMouseDown = True
-                        print("Mouse Down", aBEALFT, isMouseDown)
-                else:
-                    if isMouseDown:
-                        pc.mouseUp()
-                        isMouseDown = False
-                        print("Mouse Up", aBEALFT, isMouseDown)
             else:
                 prevCoordinates = []
-                    
+
+            #12 & 4 are landmarks of Thumb and Index and are used to perform Mouse Down and Up
+            if(distanceBetweenPoints(handLandmarks[12]['x'], handLandmarks[12]['y'], handLandmarks[4]['x'], handLandmarks[4]['y']) <= fingerSpace):
+                if isMouseDown == False:
+                    pc.mouseDown()
+                    isMouseDown = True
+            else:
+                if isMouseDown:
+                    pc.mouseUp()
+                    isMouseDown = False
+
+            #16 & 4 are landmarks of Thumb and Index and are used to perform Right Click
+            if(distanceBetweenPoints(handLandmarks[16]['x'], handLandmarks[16]['y'], handLandmarks[4]['x'], handLandmarks[4]['y']) <= fingerSpace):
+                pc.click(button='right')
 
             #Drawing Landmarks
             for hand_landmarks in results.multi_hand_landmarks:
