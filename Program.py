@@ -104,7 +104,7 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_
                     isMouseDown = False
 
             #16 & 4 are landmarks of Thumb and Index and are used to perform Right Click
-            if(distanceBetweenPoints(handLandmarks[16]['x'], handLandmarks[16]['y'], handLandmarks[4]['x'], handLandmarks[4]['y']) <= fingerSpace):
+            if(distanceBetweenPoints(handLandmarks[20]['x'], handLandmarks[20]['y'], handLandmarks[4]['x'], handLandmarks[4]['y']) <= fingerSpace):
                 pc.click(button='right')
 
             #Drawing Landmarks
