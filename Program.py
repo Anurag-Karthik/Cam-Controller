@@ -34,7 +34,7 @@ pcScreenHeight = pcScreenHeightWidth[1]
 pcScreenWidth = pcScreenHeightWidth[0]
 
 #This is the variable which sets the minimum length between fingers for them to be considered as a pinch
-fingerSpace = 0.08
+fingerSpace = 0.05
 
 #Initializing Necessary Mediapipe Models
 mp_hands = mp.solutions.hands
