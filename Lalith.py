@@ -51,6 +51,7 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_
     while True:
         #Obtaining Frame from Camera
         ret, frame = cam.read()
+        frame = cv2.flip(frame, 1)
         #Obtaining No.of Pixels in Camera Output which are later using to Scale Outputs obtained by various models
         camImgHeight = frame.shape[0]
         camImgWidth = frame.shape[1]
@@ -93,15 +94,6 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_
             else:
                 prevCoordinates = []
 
-            # #8 is Index Finger's Point which we are using to get Functions
-            # indexFingerCordinates = (handLandmarks[8]['x'], handLandmarks[8]['y'])
-            # if(prevCoordinates == []):
-            #     prevCoordinates = indexFingerCordinates
-            #     continue
-            # currentMouseX, currentMouseY = pc.position()
-            # pc.moveTo((currentMouseX + ((indexFingerCordinates[0] - prevCoordinates[0]) * pcScreenWidth)), (currentMouseY + ((indexFingerCordinates[1] - prevCoordinates[1]) * pcScreenHeight)))
-            # prevCoordinates = indexFingerCordinates
-
             #8 & 4 are landmarks of Thumb and Index and are used to detect pinch
             if(distanceBetweenPoints(handLandmarks[12]['x'], handLandmarks[12]['y'], handLandmarks[4]['x'], handLandmarks[4]['y']) <= fingerSpace):
                 if isMouseDown == False:
@@ -111,6 +103,9 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_
                 if isMouseDown:
                     pc.mouseUp()
                     isMouseDown = False
+
+            if(distanceBetweenPoints(handLandmarks[16]['x'], handLandmarks[16]['y'], handLandmarks[4]['x'], handLandmarks[4]['y']) <= fingerSpace):
+                pc.click(button='right')
 
             #Drawing Landmarks
             for hand_landmarks in results.multi_hand_landmarks:
