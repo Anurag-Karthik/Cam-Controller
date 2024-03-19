@@ -34,7 +34,10 @@ pcScreenHeight = pcScreenHeightWidth[1]
 pcScreenWidth = pcScreenHeightWidth[0]
 
 #This is the variable which sets the minimum length between fingers for them to be considered as a pinch
-fingerSpace = 0.05
+fingerSpace = 0.08
+
+#This is the variable which sets the minimum length between fingers for them to be considered as a click
+clickSpace = 0.06
 
 #Initializing Necessary Mediapipe Models
 mp_hands = mp.solutions.hands
@@ -51,6 +54,7 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_
     while True:
         #Obtaining Frame from Camera
         ret, frame = cam.read()
+        frame = cv2.flip(frame, 1)
         #Obtaining No.of Pixels in Camera Output which are later using to Scale Outputs obtained by various models
         camImgHeight = frame.shape[0]
         camImgWidth = frame.shape[1]
@@ -81,8 +85,8 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_
                 })
 
             #8 & 4 are landmarks of Thumb and Index and are used to detect pinch and move mouse
-            if(distanceBetweenPoints(handLandmarks[4]['x'], handLandmarks[4]['y'], handLandmarks[8]['x'], handLandmarks[8]['y']) <= fingerSpace):
-                mouseCordinates = findMidPoint(handLandmarks[4]['x'], handLandmarks[4]['y'], handLandmarks[8]['x'], handLandmarks[8]['y'])
+            if(distanceBetweenPoints(handLandmarks[8]['x'], handLandmarks[8]['y'], handLandmarks[4]['x'], handLandmarks[4]['y']) <= fingerSpace):
+                mouseCordinates = findMidPoint(handLandmarks[8]['x'], handLandmarks[8]['y'], handLandmarks[4]['x'], handLandmarks[4]['y'])
                 if(prevCoordinates == []):
                     prevCoordinates = mouseCordinates
                     continue
@@ -93,8 +97,8 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_
             else:
                 prevCoordinates = []
 
-            #12 & 4 are landmarks of Thumb and Index and are used to perform Mouse Down and Up
-            if(distanceBetweenPoints(handLandmarks[12]['x'], handLandmarks[12]['y'], handLandmarks[4]['x'], handLandmarks[4]['y']) <= fingerSpace):
+            #16 & 4 are landmarks of Thumb and Ring and are used to perform Mouse Down and Up
+            if(distanceBetweenPoints(handLandmarks[12]['x'], handLandmarks[12]['y'], handLandmarks[4]['x'], handLandmarks[4]['y']) <= clickSpace):
                 if isMouseDown == False:
                     pc.mouseDown()
                     isMouseDown = True
@@ -103,8 +107,12 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_
                     pc.mouseUp()
                     isMouseDown = False
 
-            #16 & 4 are landmarks of Thumb and Index and are used to perform Right Click
-            if(distanceBetweenPoints(handLandmarks[20]['x'], handLandmarks[20]['y'], handLandmarks[4]['x'], handLandmarks[4]['y']) <= fingerSpace):
+            #12 & 4 are landmarks of Thumb and Index and are used to perform Click
+            if(distanceBetweenPoints(handLandmarks[16]['x'], handLandmarks[16]['y'], handLandmarks[4]['x'], handLandmarks[4]['y']) <= clickSpace):
+                pc.click()
+
+            #20 & 4 are landmarks of Thumb and Litle Fingers and are used to perform Right Click
+            if(distanceBetweenPoints(handLandmarks[20]['x'], handLandmarks[20]['y'], handLandmarks[4]['x'], handLandmarks[4]['y']) <= clickSpace):
                 pc.click(button='right')
 
             #Drawing Landmarks
